@@ -40,7 +40,7 @@ jobs:
         run: ./gradlew assemble
 
       - name: Execute checks / tests
-        run: ./gradlew check --no-daemon --info
+        run: ./gradlew check --info
 
       - name: Summarize tests results
         uses: jeantessier/test-summary-action@v1

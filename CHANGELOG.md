@@ -1,6 +1,6 @@
 ## [Unreleased]
 
-# Version 1.0.0-rc1
+# Version 1.0.0-rc.1
 ## Features:
 - Definition of `outDirectory`, `traceFileName`, `summaryFileName`, and `reportFileName` config parameters
 

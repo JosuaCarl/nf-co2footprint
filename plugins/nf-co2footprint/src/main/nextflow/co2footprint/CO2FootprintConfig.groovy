@@ -43,7 +43,7 @@ class CO2FootprintConfig {
     private String  location = null
     private def     ci = null                       // CI: carbon intensity
     private def     ciMarket = null                 // Market based CI
-    private String  emApiKey = null                   // API key for electricityMaps
+    private String  emApiKey = null                 // API key for electricityMaps
     private Double  pue = null                      // PUE: power usage effectiveness efficiency, coefficient of the data centre
     private Double  powerdrawMem = 0.3725           // Power draw of memory [W per GB]
     private Boolean ignoreCpuModel = false

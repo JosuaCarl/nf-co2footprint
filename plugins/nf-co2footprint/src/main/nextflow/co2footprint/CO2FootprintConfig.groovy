@@ -31,15 +31,20 @@ import java.nio.file.Path
 @Slf4j
 class CO2FootprintConfig {
 
+    // Immutable parameters
+    private final List<String> supportedMachineTypes = ['local', 'compute cluster', 'cloud']
+
     // Configuration parameters (can be set in Nextflow config)
-    private String  outDirectory = 'pipeline_info'
-    private String  traceFileName = 'co2footprint_trace'
-    private String  summaryFileName = 'co2footprint_summary'
-    private String  reportFileName = 'co2footprint_report'
-    private String  timestamp = TraceHelper.launchTimestampFmt()
-    private String  traceFile = null
-    private String  summaryFile = null
-    private String  reportFile = null
+    private String  trace = [
+    ]
+    private String  summary = [
+            enabled: true,
+            file:  "${outDirectory}/co2footprint_summary_${timestamp}.txt"
+    ]
+    private String  report = [
+            enabled: true,
+            file: "${outDirectory}/co2footprint_report_${timestamp}.html"
+    ]
     private String  location = null
     private def     ci = null                       // CI: carbon intensity
     private def     ciMarket = null                 // Market based CI
@@ -50,9 +55,6 @@ class CO2FootprintConfig {
     private Double  powerdrawCpuDefault = null
     private String  customCpuTdpFile = null
     private String  machineType = null              // Type of computer on which the workflow is run ['local', 'compute cluster', '']
-
-    // Supported machine types
-    private final List<String> supportedMachineTypes = ['local', 'compute cluster', 'cloud']
 
     // Getter methods for config values
     String getOutDirectory() { outDirectory }

@@ -1,9 +1,10 @@
 ## [Unreleased]
 
-# Version 1.0.0-rc.1
+# Version 1.0.0-rc.2
 ## Features:
-- Definition of `outDirectory`, `traceFileName`, `summaryFileName`, and `reportFileName` config parameters
+- Change of file config to match nf-core style
 
+# Version 1.0.0-rc.1
 ## Bug Fixes:
 - Version is `null` in many cases (parsed the wrong MANIFEST)
 - Logging is overwritten by Nextflow (now integrated in Groovy code)

@@ -1,14 +1,18 @@
 package nextflow.co2footprint
 
+import java.nio.file.Path
 
 import groovy.util.logging.Slf4j
+
+import nextflow.co2footprint.utils.BaseConfig
+import nextflow.co2footprint.utils.ConfigParameter
 import nextflow.co2footprint.DataContainers.DataMatrix
 import nextflow.co2footprint.DataContainers.CIDataMatrix
 import nextflow.co2footprint.DataContainers.CIValueComputer
 import nextflow.co2footprint.DataContainers.TDPDataMatrix
-import nextflow.trace.TraceHelper
-
-import java.nio.file.Path
+import nextflow.co2footprint.FileCreators.CO2FootprintReportConfig
+import nextflow.co2footprint.FileCreators.CO2FootprintSummaryConfig
+import nextflow.co2footprint.FileCreators.CO2FootprintTraceConfig
 
 /**
  * Configuration class for CO₂ footprint calculations.
@@ -29,67 +33,85 @@ import java.nio.file.Path
  * @author Júlia Mir Pedrol <mirp.julia@gmail.com>, Sabrina Krakau <sabrinakrakau@gmail.com>
  */
 @Slf4j
-class CO2FootprintConfig {
-
-    // Immutable parameters
-    private final List<String> supportedMachineTypes = ['local', 'compute cluster', 'cloud']
+class CO2FootprintConfig extends BaseConfig {
 
     // Configuration parameters (can be set in Nextflow config)
-    private String  trace = [
+    HashMap<String, ConfigParameter> parameters = [
+        trace: new ConfigParameter<CO2FootprintTraceConfig>(
+            Set.of(CO2FootprintTraceConfig),
+            'Trace file, written by the plugin.'
+        ),
+        summary: new ConfigParameter<CO2FootprintSummaryConfig>(
+            Set.of(CO2FootprintSummaryConfig),
+            'Summary of the CO2 footprint in text format.'
+        ),
+        report: new ConfigParameter<CO2FootprintReportConfig>(
+            Set.of(CO2FootprintReportConfig),
+            'Report of the CO2 footprint in browser (HTML) format.'
+        ),
+        location: new ConfigParameter<String>(
+            Set.of(String),
+            'Location of the computing machine.'
+        ),
+        ci: new ConfigParameter<Double>(
+            Set.of(Closure<Double>, Double),
+            'Location-based carbon intensity (CI).'
+        ),
+        ciMarket: new ConfigParameter<Double>(
+            Set.of(Closure<Double>, Double),
+            'Market-based carbon intensity (CI).'
+        ),
+        emApiKey: new ConfigParameter<String>(
+            Set.of(String),
+            'A key/token for Electricity map\'s API.'
+        ),
+        pue: new ConfigParameter<Double>(
+            Set.of(Double),
+            'Power usage effectiveness of the computing machine.'
+        ),
+        powerdrawMem: new ConfigParameter<Double>(
+            Set.of(Double),
+            'Power usage of the memory (constant).'
+        ),
+        ignoreCpuModel: new ConfigParameter<Boolean>(
+            Set.of(Boolean),
+            'Whether to ignore the model and jump straight to a default fallback value.'
+        ),
+        powerdrawCpuDefault: new ConfigParameter<Double>(
+            Set.of(Double),
+            'Default power usage per core of the CPU [W].'
+        ),
+        customCpuTdpFile: new ConfigParameter<String>(
+            Set.of(String),
+            'Path to a custom thermal design power (TDP) table.'
+        ),
+        machineType : new ConfigParameter<String> (
+            Set.of ( String ),
+            'The type of the computing machine (local, compute cluster, cloud).'
+        ),
+        supportedMachineTypes : new ConfigParameter<List<String>> (
+            Set.of ( List<String> ),
+            'The machine types that are supported by the plugin.' ,
+            [ 'local', 'compute cluster', 'cloud' ],
+            true, true,false
+        )
     ]
-    private String  summary = [
-            enabled: true,
-            file:  "${outDirectory}/co2footprint_summary_${timestamp}.txt"
-    ]
-    private String  report = [
-            enabled: true,
-            file: "${outDirectory}/co2footprint_report_${timestamp}.html"
-    ]
-    private String  location = null
-    private def     ci = null                       // CI: carbon intensity
-    private def     ciMarket = null                 // Market based CI
-    private String  emApiKey = null                 // API key for electricityMaps
-    private Double  pue = null                      // PUE: power usage effectiveness efficiency, coefficient of the data centre
-    private Double  powerdrawMem = 0.3725           // Power draw of memory [W per GB]
-    private Boolean ignoreCpuModel = false
-    private Double  powerdrawCpuDefault = null
-    private String  customCpuTdpFile = null
-    private String  machineType = null              // Type of computer on which the workflow is run ['local', 'compute cluster', '']
 
     // Getter methods for config values
-    String getOutDirectory() { outDirectory }
-    String getTraceFileName() { traceFileName }
-    String getSummaryFileName() { summaryFileName }
-    String getReportFileName() { reportFileName }
-    String getTimestamp() { timestamp }
-    String getTraceFile() { traceFile }
-    String getSummaryFile() { summaryFile }
-    String getReportFile() { reportFile }
-    String getLocation() { location }
-
-    /**
-     * Returns the carbon intensity value.
-     * If set as a closure (for real-time API), invokes it to get the current value.
-     */
-    Double getCi() {
-        (ci instanceof Closure) ? (ci as Closure<Double>)() : ci
-    }
-
-    /**
-     * Returns the personal energy mix carbon intensity value.
-     * If set as a closure (in case user defined a function for it in the config), invokes it to get the current value.
-     */
-    Double getCiMarket() {
-        (ciMarket instanceof Closure) ? (ciMarket as Closure<Double>)() : ciMarket
-    }
-
-    Double getPue() { pue }
-    Boolean getIgnoreCpuModel() { ignoreCpuModel }
-    Double getPowerdrawCpuDefault() { powerdrawCpuDefault }
-    Double getPowerdrawMem() { powerdrawMem }
-    String getCustomCpuTdpFile() { customCpuTdpFile }
-    String getMachineType()  { machineType }
-
+    CO2FootprintTraceConfig getTrace() { get('trace') as CO2FootprintTraceConfig }
+    CO2FootprintSummaryConfig getSummary() { get('summary') as CO2FootprintSummaryConfig }
+    CO2FootprintReportConfig getReport() { get('report') as CO2FootprintReportConfig }
+    String getLocation() { get('location') }
+    Double getCi() { getEvaluated('ci') as Double }
+    Double getCiMarket() { getEvaluated('ciMarket') as Double }
+    String getEmApiKey() { get('emApiKey') }
+    Double getPue() { get('pue') as Double}
+    Boolean getIgnoreCpuModel() { get('ignoreCpuModel') }
+    Double getPowerdrawCpuDefault() { get('powerdrawCpuDefault') as Double  }
+    Double getPowerdrawMem() { get('powerdrawMem') as Double }
+    String getCustomCpuTdpFile() { get('customCpuTdpFile') }
+    String getMachineType()  { get('machineType')  }
+    List<String> getSupportedMachineTypes() { get('supportedMachineTypes') as List<String> }
     /**
      * Loads configuration from a map and sets up defaults and fallbacks.
      * Also sets up CPU and CI data sources and assigns machine type and PUE.
@@ -100,34 +122,24 @@ class CO2FootprintConfig {
      * @param processMap  Map with process/executor info
      */
     CO2FootprintConfig(Map<String, Object> configMap, TDPDataMatrix cpuData, CIDataMatrix ciData, Map<String, Object> processMap) {
+        super('CO2FootprintConfig', this.parameters)
+
         // Ensure configMap is not null
         configMap ?= [:]
 
         // Assign values from map to config
-        configMap.each { name, value ->
-            if (this.hasProperty(name)) {
-                this.setProperty(name, value)
-            } else {
-                // Log warning and skip the key
-                log.warn("Skipping unknown configuration key: '${name}'")
-            }
-        }
-
-        // Define file paths
-        traceFile ?= Path.of(getOutDirectory(), "${getTraceFileName()}_${getTimestamp()}.txt") as String
-        summaryFile ?= Path.of(getOutDirectory(), "${getSummaryFileName()}_${getTimestamp()}.txt") as String
-        reportFile ?= Path.of(getOutDirectory(), "${getReportFileName()}_${getTimestamp()}.html") as String
+        configMap.each { name, value -> configure(name, value) }
 
         // Determine the carbon intensity (CI) value
         if (ci == null) {
             CIValueComputer ciValueComputer = new CIValueComputer(emApiKey, location, ciData)
             // ci is either set to a Closure (in case the electricity maps API is used) or to a Double (in the other cases)
             // The closure is invoked each time the CO2 emissions are calculated (for each task) to make a new API call to update the real time ci value.
-            ci = ciValueComputer.computeCI()
+            set('ci', ciValueComputer.computeCI())
         }
 
         // Sets machineType and pue based on the executor if machineType is not already set
-        if (this.machineType == null) {
+        if (machineType == null) {
             setMachineTypeAndPueFromExecutor(processMap?.get('executor') as String)
         }
 
@@ -142,17 +154,20 @@ class CO2FootprintConfig {
         }
 
         // Assign PUE if not already given
-        pue ?= switch (machineType) {
-            case 'local' -> 1.0
-            case 'compute cluster' -> 1.67
-            case 'cloud' -> 1.56  // source: (https://datacenter.uptimeinstitute.com/rs/711-RIA-145/images/2024.GlobalDataCenterSurvey.Report.pdf)
-            default -> 1.0 // Fallback PUE (assigned if machineType is null)
-        }
+        setEmpty(
+    'pue',
+            switch (machineType) {
+                case 'local' -> 1.0
+                case 'compute cluster' -> 1.67
+                case 'cloud' -> 1.56  // source: (https://datacenter.uptimeinstitute.com/rs/711-RIA-145/images/2024.GlobalDataCenterSurvey.Report.pdf)
+                default -> 1.0 // Fallback PUE (assigned if machineType is null)
+            }
+        )
 
         // Set fallback CPU model based on machine type
         if (machineType) {
             if (supportedMachineTypes.contains(machineType)) {
-                cpuData.fallbackModel = "default $machineType" as String
+                cpuData.fallbackModel = "default ${machineType}" as String
             }
             else {
                 final String message = "machineType '${machineType}' is not supported." +
@@ -200,8 +215,8 @@ class CO2FootprintConfig {
 
             // Extract info from executor
             if (machineTypeMatrix.rowIndex.containsKey(executor)) {
-                this.pue ?= machineTypeMatrix.get(executor, 'pue') as Double // assign pue only if not already set
-                this.machineType = machineTypeMatrix.get(executor, 'machineType') as String
+                setEmpty('pue', machineTypeMatrix.get(executor, 'pue') as Double) // assign pue only if not already set
+                set('machineType', machineTypeMatrix.get(executor, 'machineType') as String)
             }
             else {
                 log.warn(
@@ -233,9 +248,9 @@ class CO2FootprintConfig {
      */
     SortedMap<String, Object> collectOutputFileOptions() {
         return [
-                "traceFile": traceFile,
-                "summaryFile": summaryFile,
-                "reportFile": reportFile
+                "trace": trace,
+                "summaryFile": summary,
+                "reportFile": report
         ].sort() as SortedMap
     }
 

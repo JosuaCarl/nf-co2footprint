@@ -1,6 +1,8 @@
 package nextflow.co2footprint.FileCreators
 
 import groovy.util.logging.Slf4j
+import nextflow.co2footprint.utils.BaseConfig
+import nextflow.co2footprint.utils.ConfigParameter
 import nextflow.trace.TraceHelper
 
 import java.nio.file.Path
@@ -19,27 +21,58 @@ import java.nio.file.Path
  * }
  */
 @Slf4j
-class CO2FootprintFileConfig {
-    // Immutable
-    private final String outDirectory = 'pipeline_info'
-    private final String name = 'co2footprint'
-    private final String suffix = TraceHelper.launchTimestampFmt()
-    private final String ending = 'txt'
+class CO2FootprintFileConfig extends BaseConfig{
+    private final static HashMap<String, ConfigParameter> immutableParameters = [
+            outDirectory: new ConfigParameter<CO2FootprintTraceConfig>(
+                    Set.of(CO2FootprintTraceConfig),
+                    'Directory for the output files.',
+                    'pipeline_info',
+                    false, true, false
+            ),
+            name: new ConfigParameter<CO2FootprintSummaryConfig>(
+                    Set.of(CO2FootprintSummaryConfig),
+                    'Name of the file.',
+                    'co2footprint',
+                    false, true, true
+            ),
+            suffix: new ConfigParameter<CO2FootprintReportConfig>(
+                    Set.of(CO2FootprintReportConfig),
+                    'Suffix / timestamp of the file.',
+                    TraceHelper.launchTimestampFmt(),
+                    false, true, true
+            ),
+            ending: new ConfigParameter<CO2FootprintReportConfig>(
+                    Set.of(CO2FootprintReportConfig),
+                    'File ending.',
+                    'txt',
+                    false, true, true
+            ),
+    ]
 
-    // Configuration parameters
-    private boolean enabled = true
-    private String file = Path.of(outDirectory, "${name}_${suffix}.${ending}").toString()
+    private final static HashMap<String, ConfigParameter> parameters = [
+            enabled: new ConfigParameter<CO2FootprintReportConfig>(
+                    Set.of(CO2FootprintReportConfig),
+                    'Should the output be enabled?',
+                    true,
+            ),
+            file: new ConfigParameter<CO2FootprintReportConfig>(
+                    Set.of(CO2FootprintReportConfig),
+                    'Path to the file.',
+                    Path.of(outDirectory, "${name}_${suffix}.${ending}").toString()
+            ),
+    ]
 
     CO2FootprintFileConfig(Map<String, ?> fileConfigMap) {
-        fileConfigMap.each { name, value -> this.setProperty(name, value) }
+        super('CO2FootprintTraceConfig', (parameters + immutableParameters))
+        fileConfigMap.each { name, value -> configure(name, value) }
     }
 
     // Get methods
-    String getOutDirectory() { outDirectory }
-    String getName() { name }
-    String getSuffix() { suffix }
-    String getEnding() { ending }
-    boolean getEnabled() { enabled }
-    String getFile() { file }
+    String getOutDirectory() { get('outDirectory') }
+    String getName() { get('name') }
+    String getSuffix() { get('suffix') }
+    String getEnding() {  get('ending')}
+    boolean getEnabled() { get('enabled') }
+    String getFile() { get('file') }
     String getPath() { Path.of(file) }
 }

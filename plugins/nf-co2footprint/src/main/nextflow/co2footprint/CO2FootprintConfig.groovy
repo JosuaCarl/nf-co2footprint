@@ -36,7 +36,7 @@ import nextflow.co2footprint.FileCreators.CO2FootprintTraceConfig
 class CO2FootprintConfig extends BaseConfig {
 
     // Configuration parameters (can be set in Nextflow config)
-    HashMap<String, ConfigParameter> parameters = [
+    private static HashMap<String, ConfigParameter> parameters = [
         trace: new ConfigParameter<CO2FootprintTraceConfig>(
             Set.of(CO2FootprintTraceConfig),
             'Trace file, written by the plugin.'
@@ -122,7 +122,7 @@ class CO2FootprintConfig extends BaseConfig {
      * @param processMap  Map with process/executor info
      */
     CO2FootprintConfig(Map<String, Object> configMap, TDPDataMatrix cpuData, CIDataMatrix ciData, Map<String, Object> processMap) {
-        super('CO2FootprintConfig', this.parameters)
+        super('CO2FootprintConfig', parameters)
 
         // Ensure configMap is not null
         configMap ?= [:]

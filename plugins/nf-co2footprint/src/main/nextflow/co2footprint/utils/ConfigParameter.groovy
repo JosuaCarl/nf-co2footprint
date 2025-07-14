@@ -6,28 +6,37 @@ import groovy.util.logging.Slf4j
 class ConfigParameter<T> {
     private final Set<Class> types
     private final String description
-    private def value
+    private final Closure<T> defaultFunction
     private final boolean configurable
     private final boolean readable
     private final boolean writable
+    private def value = null
+    String name = null
 
     ConfigParameter(
         Set<Class> types=[],
         String description='',
-        def value=null,
+        def defaultFunction=null,
         boolean configurable=true,
         boolean readable=true,
-        boolean writable=true
+        boolean writable=true,
+        String name = null
     ) {
         this.types = types
         this.description = description
-        this.value = value
+        this.defaultFunction = defaultFunction instanceof Closure<T> ? defaultFunction : { -> defaultFunction }
         this.configurable = configurable
         this.readable = readable
         this.writable = writable
+        this.name = name
     }
 
     String getDescription() { description }
+
+    /**
+     * Sets the value to the default value
+     */
+    void setToDefault() { this.value = this.defaultFunction() }
 
     /**
      * Check a given class against a list of allowed classes
@@ -71,7 +80,7 @@ class ConfigParameter<T> {
             if(checkType(value)){
                 this.value = value
             } else {
-                String message = "Class `${value.getClass()}` is invalid. Valid types: ${types}."
+                String message = "Class `${value.getClass()}` is invalid for `${name}`. Valid types: ${types}."
                 log.error(message)
                 throw new ClassFormatError(message)
             }
@@ -88,7 +97,7 @@ class ConfigParameter<T> {
             if(checkType(value)){
                 this.value = value
             } else {
-                String message = "Class `${value.getClass()}` is invalid. Valid types: ${types}."
+                String message = "Class `${value.getClass()}` is invalid for `${name}`. Valid types: ${types}."
                 log.error(message)
                 throw new ClassFormatError(message)
             }
@@ -102,11 +111,12 @@ class ConfigParameter<T> {
 
     String toString() {
         String accessString = [
+                configurable ? 'configure' : null,
                 readable ? 'read' : null,
-                writable ? 'write' : null
+                writable ? 'write' : null,
         ].join(',')
 
-        return "${accessString} -> ${value} ${types}\n" +
+        return "${name}: ${accessString} -> ${value} ${types}\n" +
             "Description: ${description}"
     }
 }

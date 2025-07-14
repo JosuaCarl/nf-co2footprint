@@ -22,48 +22,51 @@ import java.nio.file.Path
  */
 @Slf4j
 class CO2FootprintFileConfig extends BaseConfig{
-    private final static HashMap<String, ConfigParameter> immutableParameters = [
-            outDirectory: new ConfigParameter<CO2FootprintTraceConfig>(
-                    Set.of(CO2FootprintTraceConfig),
+    private final HashMap<String, ConfigParameter> immutableParameters = [
+            outDirectory: new ConfigParameter<String>(
+                    Set.of(String),
                     'Directory for the output files.',
                     'pipeline_info',
                     false, true, false
             ),
-            name: new ConfigParameter<CO2FootprintSummaryConfig>(
-                    Set.of(CO2FootprintSummaryConfig),
+            name: new ConfigParameter<String>(
+                    Set.of(String),
                     'Name of the file.',
                     'co2footprint',
                     false, true, true
             ),
-            suffix: new ConfigParameter<CO2FootprintReportConfig>(
-                    Set.of(CO2FootprintReportConfig),
+            suffix: new ConfigParameter<String>(
+                    Set.of(String),
                     'Suffix / timestamp of the file.',
-                    TraceHelper.launchTimestampFmt(),
+                    "_${TraceHelper.launchTimestampFmt()}",
                     false, true, true
             ),
-            ending: new ConfigParameter<CO2FootprintReportConfig>(
-                    Set.of(CO2FootprintReportConfig),
+            ending: new ConfigParameter<String>(
+                    Set.of(String),
                     'File ending.',
-                    'txt',
+                    '.txt',
                     false, true, true
             ),
     ]
 
-    private final static HashMap<String, ConfigParameter> parameters = [
-            enabled: new ConfigParameter<CO2FootprintReportConfig>(
-                    Set.of(CO2FootprintReportConfig),
+    private final HashMap<String, ConfigParameter> parameters = [
+            enabled: new ConfigParameter<boolean>(
+                    Set.of(boolean),
                     'Should the output be enabled?',
                     true,
             ),
-            file: new ConfigParameter<CO2FootprintReportConfig>(
-                    Set.of(CO2FootprintReportConfig),
+            file: new ConfigParameter<String>(
+                    Set.of(String),
                     'Path to the file.',
-                    Path.of(outDirectory, "${name}_${suffix}.${ending}").toString()
+                    { -> Path.of(outDirectory, "${name}${suffix}${ending}").toString() }
             ),
     ]
 
     CO2FootprintFileConfig(Map<String, ?> fileConfigMap) {
-        super('CO2FootprintTraceConfig', (parameters + immutableParameters))
+        super('CO2FootprintTraceConfig')
+        addParameters( immutableParameters + parameters )
+        setParametersToDefault()
+
         fileConfigMap.each { name, value -> configure(name, value) }
     }
 

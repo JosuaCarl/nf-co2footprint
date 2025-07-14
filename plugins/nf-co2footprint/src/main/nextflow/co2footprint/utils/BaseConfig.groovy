@@ -8,13 +8,32 @@ import groovy.util.logging.Slf4j
  */
 @Slf4j
 class BaseConfig {
-    HashMap<String, ConfigParameter> parameters
-    String configName = 'baseConfig'
+    private HashMap<String, ConfigParameter> parameters
+    private String configName = 'baseConfig'
 
-    BaseConfig(String name, Map<String, ConfigParameter> parameters=[:]) {
-        this.configName = name
-        this.parameters = parameters as HashMap<String, ConfigParameter>
+    BaseConfig(String configName, Map<String, ConfigParameter> parameters=[:]) {
+        this.configName = configName
+        this.parameters = parameters.each { String name, ConfigParameter parameter ->
+            parameter.name = name
+        } as HashMap<String, ConfigParameter>
     }
+
+    /**
+     * Enables adding parameters after initialization
+     *
+     * @param parameters
+     */
+    protected void addParameters(Map<String, ConfigParameter> parameters) {
+        parameters = parameters.each { String name, ConfigParameter parameter ->
+            parameter.name = name
+        } as HashMap<String, ConfigParameter>
+        this.parameters.putAll(parameters)
+    }
+
+    protected void setParametersToDefault(){
+        this.parameters.values().each { ConfigParameter parameter -> parameter.setToDefault() }
+    }
+
 
     /**
      * Find the correct parameter

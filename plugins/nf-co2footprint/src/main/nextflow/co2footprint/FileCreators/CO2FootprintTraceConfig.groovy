@@ -9,7 +9,7 @@ class CO2FootprintTraceConfig extends CO2FootprintFileConfig {
         super(traceConfigMap)
 
         set('name', "${name}_trace")
-        set('ending', 'txt')
-        setEmpty('file', Path.of(outDirectory, "${name}_${suffix}.${ending}").toString())
+        set('ending', '.txt')
+        setEmpty('file', Path.of(outDirectory, "${name}${suffix}${ending}").toString())
     }
 }

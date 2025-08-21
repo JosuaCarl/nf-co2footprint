@@ -5,9 +5,8 @@ import java.math.RoundingMode
 /**
  * A number associated with a unit.
  */
-class Quantity {
-    BigDecimal value
-    String scale
+class Quantity extends BigDecimal {
+    String prefix
     String unit
     String separator
 
@@ -19,24 +18,11 @@ class Quantity {
      * @param unit The unit of the quantity
      * @param separator The separator between value and scaled unit, defaults to ' '
      */
-    Quantity(Number value, String scale='', String unit='', String separator=' ') {
-        this.value = value as BigDecimal
-        this.scale = scale
+    Quantity(Number value, String prefix='', String unit='', String separator=' ') {
+        super((value as BigDecimal).unscaledValue(), (value as BigDecimal).scale())
+        this.prefix = prefix
         this.unit = unit
         this.separator = separator
-    }
-
-    /**
-     * Set the contents of a Quantity.
-     *
-     * @param value Number of the quantity
-     * @param scale Scale of the unit
-     * @param unit Unit string
-     */
-    void set(Number value, String scale=this.scale, String unit=this.unit) {
-        this.value = value as BigDecimal
-        this.scale = scale
-        this.unit = unit
     }
 
     /**
@@ -47,9 +33,9 @@ class Quantity {
      */
     Quantity round(Integer precision=2, RoundingMode roundingMode=RoundingMode.HALF_UP) {
         if (precision != null) {
-            this.value = this.value.setScale(precision, roundingMode)
+            BigDecimal scaled = setScale(precision, roundingMode)
+            return new Quantity(scaled, prefix, unit, separator)
         }
-
         return this
     }
 
@@ -60,9 +46,8 @@ class Quantity {
      */
     Quantity floor(Integer precision=0) {
         if (precision != null) {
-            this.value = this.value.setScale(precision, RoundingMode.FLOOR)
+            return new Quantity(setScale(precision, RoundingMode.FLOOR), prefix, unit, separator)
         }
-
         return this
     }
 
@@ -74,10 +59,10 @@ class Quantity {
      */
     String getReadable() {
         // Remove trailing Zeros and convert to readable String
-        String readable = this.value.stripTrailingZeros().toPlainString()
+        String readable = this.stripTrailingZeros().toPlainString()
 
         // Add scale and unit with separator only if one of them is given
-        String scaledUnit = (this.scale ?: '') + (this.unit ?: '')
+        String scaledUnit = (prefix ?: '') + (unit ?: '')
         if (scaledUnit) { readable += this.separator + scaledUnit }
 
         return readable

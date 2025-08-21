@@ -8,7 +8,7 @@ class ConverterTest extends Specification  {
         Quantity out = Converter.scaleUnits(value as Double, scale, unit, targetScale)
 
         then:
-        out.value == expected
+        out == expected
         out.unit == unit
 
         where:
@@ -39,7 +39,7 @@ class ConverterTest extends Specification  {
         Quantity out = Converter.scaleTime(value, unit, targetUnit)
 
         then:
-        out.value == expected
+        out == expected
 
         where:
         value   || unit         || targetUnit   || expected

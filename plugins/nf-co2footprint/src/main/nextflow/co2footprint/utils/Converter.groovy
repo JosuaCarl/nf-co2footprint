@@ -177,15 +177,13 @@ class Converter {
 
             // Handle the last unit differently
             if( targetUnit == smallestUnit ) {
-                currentTime.round()     // Keep last two decimals
-                
+                currentTime = currentTime.round()     // Keep last two decimals
                 timeString += "${currentTime.getReadable()} "
             } else {
-                currentTime.floor()     // Keep only round numbers
-
+                currentTime = currentTime.floor()     // Keep only round numbers
                 // Add to string and remove added value, if the threshold is reached
-                if ( (threshold == null || currentTime.value > threshold) ) {
-                    value -= scaleTime(currentTime.value, targetUnit, unit).value
+                if ( (threshold == null || currentTime > threshold) ) {
+                    value -= scaleTime(currentTime, targetUnit, unit)
                     timeString += "${currentTime.getReadable()} "
 
                     // Finish execution if value is 0

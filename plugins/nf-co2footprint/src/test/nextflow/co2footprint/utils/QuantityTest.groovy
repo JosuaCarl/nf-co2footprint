@@ -24,7 +24,7 @@ class QuantityTest  extends Specification {
         Quantity quantity = new Quantity(value)
 
         then:
-        quantity.floor(precision).value == expectedFloor
+        quantity.floor(precision) == expectedFloor
 
         where:
         value   || precision || expectedFloor
@@ -40,7 +40,7 @@ class QuantityTest  extends Specification {
         Quantity quantity = new Quantity(value)
 
         then:
-        quantity.round(precision).value == expectedRound
+        quantity.round(precision) == expectedRound
 
         where:
         value   || precision || expectedRound

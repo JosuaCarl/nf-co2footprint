@@ -102,7 +102,7 @@ class CO2FootprintObserver implements TraceObserver {
         this.config = config
 
         // Collect metrics in hierarchical node structure
-        this.workflowStats = new RecordTree(session.runName)
+        this.workflowStats = new RecordTree(session.runName, [level: 'workflow'])
 
         // Make file instances
         def traceConf = config.value('trace')
@@ -146,7 +146,7 @@ class CO2FootprintObserver implements TraceObserver {
         // Keep started tasks
         runningTasks[traceRecord.taskId] = traceRecord
 
-        workflowStats.addChild(new RecordTree(traceRecord.processName))
+        workflowStats.addChild(new RecordTree(traceRecord.processName, [level: 'process']))
     }
 
     /**
@@ -166,9 +166,9 @@ class CO2FootprintObserver implements TraceObserver {
 
         // Insert records into Tree structure
         RecordTree processNode = workflowStats.getChild(traceRecord.processName)
-        RecordTree taskNode = processNode.addChild(new RecordTree(traceRecord.taskId))
-        taskNode.addChild(new RecordTree('co2', co2Record))
-        taskNode.addChild(new RecordTree('trace', traceRecord))
+        RecordTree taskNode = processNode.addChild(new RecordTree(traceRecord.taskId, [level: 'task']))
+        taskNode.addChild(new RecordTree('co2', [level: 'record'], co2Record))
+        taskNode.addChild(new RecordTree('trace', [level: 'record'], traceRecord))
     }
 
     // ------ OBSERVER METHODS ------

@@ -8,8 +8,7 @@ import nextflow.co2footprint.Config.FileSubConfig
 import nextflow.co2footprint.Records.CO2Record
 import nextflow.co2footprint.DataContainers.TDPDataMatrix
 import nextflow.co2footprint.Records.CiRecordCollector
-import nextflow.processor.TaskId
-import nextflow.co2footprint.ResultsTree.RecordTree
+import nextflow.co2footprint.Records.CO2RecordTree
 import nextflow.trace.TraceRecord
 import spock.lang.Shared
 import spock.lang.Specification
@@ -26,7 +25,7 @@ class ReportFileCreatorTest extends Specification{
     Path reportPath = tempPath.resolve('report_test.html')
 
     @Shared
-    RecordTree workflowStats
+    CO2RecordTree workflowStats
 
     @Shared
     CiRecordCollector timeCiRecordCollector
@@ -103,9 +102,9 @@ class ReportFileCreatorTest extends Specification{
             traceRecord, 100.0d, 10.0d, null, 475.0, 100.0, 7,
             1.0d, 1, 12, 'Unknown model', 0.5d, 0.5d
         )
-        workflowStats = new RecordTree('workflow', [level: 'workflow'])
-        RecordTree processTree =  workflowStats.addChild(new RecordTree('process', [level: 'process']))
-        processTree.addChild(new RecordTree('task', [level: 'task'], co2Record))
+        workflowStats = new CO2RecordTree('workflow', [level: 'workflow'])
+        CO2RecordTree processTree =  workflowStats.addChild(new CO2RecordTree('process', [level: 'process']))
+        processTree.addChild(new CO2RecordTree('task', [level: 'task'], co2Record))
 
         co2FootprintReport = new ReportFileCreator(reportPath, false, 10_000)
         co2FootprintReport.addEntries(
@@ -114,7 +113,7 @@ class ReportFileCreatorTest extends Specification{
         )
 
         workflowStats.summarize()
-        workflowStats.collectAttributes()
+        workflowStats.collectAdditionalMetrics()
     }
 
     def 'Test correct value rendering for totalsJson' () {
@@ -123,13 +122,13 @@ class ReportFileCreatorTest extends Specification{
         ReportFileCreator co2FootprintReport = new ReportFileCreator(tempPath.resolve('report_test.html'))
 
         when:
-        RecordTree workflowStats = new RecordTree('workflow', [level: 'workflow'])
-        RecordTree processTree =  workflowStats.addChild(new RecordTree('process', [level: 'process']))
+        CO2RecordTree workflowStats = new CO2RecordTree('workflow', [level: 'workflow'])
+        CO2RecordTree processTree =  workflowStats.addChild(new CO2RecordTree('process', [level: 'process']))
         processTree.addChild(
-                new RecordTree('task', [level: 'task'], new CO2Record(new TraceRecord(), 100.0d, co2e))
+                new CO2RecordTree('task', [level: 'task'], new CO2Record(new TraceRecord(), 100.0d, co2e))
         )
         workflowStats.summarize()
-        workflowStats.collectAttributes()
+        workflowStats.collectAdditionalMetrics()
 
         co2FootprintReport.addEntries(
                 workflowStats, new CO2FootprintComputer(Mock(TDPDataMatrix), null),

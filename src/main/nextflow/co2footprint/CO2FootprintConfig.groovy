@@ -237,16 +237,14 @@ class CO2FootprintConfig extends BaseConfig {
             )
         awsMatrix.checkRequiredColumns(['Zone id'])
 
-        String region = null
-
         // 1️⃣ Try environment variables first (works for Batch, Fargate, CloudShell)
-        region = System.getenv('AWS_REGION') ?: System.getenv('AWS_DEFAULT_REGION')
+        String region = System.getenv('AWS_REGION') ?: System.getenv('AWS_DEFAULT_REGION')
         region = region?.trim()
         
         // 2️⃣ Try EC2 metadata service (works on EC2 instances)
         if (!region) {
             try {
-                URL url = new URL("http://169.254.169.254/latest/meta-data/placement/availability-zone")
+                URL url = new URI("http://169.254.169.254/latest/meta-data/placement/availability-zone").toURL()
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection()
                 conn.connectTimeout = 1000
                 conn.readTimeout = 1000

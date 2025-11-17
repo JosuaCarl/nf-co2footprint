@@ -1,7 +1,10 @@
 # New
 ## Bug Fixes:
 ## Misc:
+- Improved the testing of log messages
+
 ## Features:
+- Updated the config syntax inline with standard Nextflow style
 
 # Version 1.1.0
 ## Bug Fixes:

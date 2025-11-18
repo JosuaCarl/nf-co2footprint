@@ -57,7 +57,6 @@ class CO2FootprintObserver implements TraceObserver {
 
     // Record for CI values during execution
     CiRecordCollector timeCiRecordCollector
-    CiRecordCollector getTimeCiRecordCollector() { timeCiRecordCollector }
 
     // Holds the the start time for tasks started/submitted but not yet completed
     @PackageScope
@@ -201,7 +200,7 @@ class CO2FootprintObserver implements TraceObserver {
         runningTasks.each { TaskId taskId, TraceRecord traceRecord -> aggregateRecords(traceRecord) }
 
         // Close all files (writes remaining tasks in the trace file)
-        traceFile.close(runningTasks)
+        traceFile?.close(runningTasks)
 
         // Finalize and aggregate all workflow statistics
         workflowStats.summarize()
@@ -221,8 +220,6 @@ class CO2FootprintObserver implements TraceObserver {
                 reportFile.write()
                 reportFile.close()
             }
-        }
-
         }
 
         // Close all files (writes remaining tasks in the trace file)

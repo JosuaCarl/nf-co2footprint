@@ -35,9 +35,9 @@ class ReportFileCreatorTest extends Specification{
     def setupSpec() {
         CO2FootprintConfig config = new CO2FootprintConfig(
                 [
-                        'traceFile': tempPath,
-                        'summaryFile': tempPath,
-                        'reportFile': reportPath,
+                        'trace': ['enabled': true, 'file': tempPath],
+                        'summary': ['enabled': true, 'file': tempPath],
+                        'report': ['enabled': true, 'file': reportPath],
                         'ci': 475.0
                 ],
                 Mock(TDPDataMatrix),
@@ -48,9 +48,9 @@ class ReportFileCreatorTest extends Specification{
         Session session = Mock(Session) {
             getConfig() >> [
                     co2footprint: [
-                            'traceFile': tempPath,
-                            'summaryFile': tempPath,
-                            'reportFile': reportPath,
+                            'trace': new FileSubConfig(['enabled': true, 'file': tempPath], 'trace'),
+                            'summary': new FileSubConfig(['enabled': true, 'file': tempPath], 'summary'),
+                            'report': new FileSubConfig(['enabled': true, 'file': reportPath], 'report', 'html'),
                             'ci': 475.0
                     ]
             ]
@@ -73,28 +73,7 @@ class ReportFileCreatorTest extends Specification{
             ]
         )
 
-        Session session = Mock(Session) {
-            getConfig() >> [
-                    co2footprint: [
-                            'trace': new FileSubConfig('trace', ['enabled': true, 'file': tempPath]),
-                            'summary': new FileSubConfig('summary', ['enabled': true, 'file': tempPath]),
-                            'report': new FileSubConfig('report', ['enabled': true, 'file': reportPath]),
-                            'ci': 475.0
-                    ]
-        }
         session.getExecService() >> Executors.newFixedThreadPool(1)
-
-        CO2FootprintConfig config = new CO2FootprintConfig(
-                [
-                    'trace': ['enabled': true, 'file': tempPath],
-                    'summary': ['enabled': true, 'file': tempPath],
-                    'report': ['enabled': true, 'file': reportPath],
-                    'ci': 475.0
-                ],
-                Mock(TDPDataMatrix),
-                Mock(CIDataMatrix),
-                [:]
-        )
 
         timeCiRecordCollector = new CiRecordCollector(config)
 

@@ -77,7 +77,7 @@ class TraceFileCreator extends BaseFileCreator {
     void write(CO2Record co2Record){
         if (!created) { return }
 
-        List<String> recordedEntries = co2Record.getReadableEntries(entryKeys) //  entryKeys.collect { String key -> getReadableEntry(key, traceRecord, co2Record) } ?
+        List<String> recordedEntries = co2Record.getReadableEntries(entryKeys)
 
         traceWriter.send { PrintWriter writer ->
             writer.println( String.join('\t', recordedEntries) )

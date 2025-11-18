@@ -1,13 +1,15 @@
 package nextflow.co2footprint.Metrics
 
+import java.math.RoundingMode
+
 class Duration extends Quantity {
     /**
-     * Creator of a Time quantity, combining the tracking and reporting of a duration, associated with a unit.
+     * Creator of Time, a Quantity representing a duration with an associated unit.
      *
-     * @param value         Numerical value, saved in the quantity
-     * @param unit          Unit of the quantity
-     * @param type          Type of he value
-     * @param description   A human-readable description of the value
+     * @param value         The numeric duration value.
+     * @param unit          The time unit (e.g. 'ms', 's', 'min', 'h').
+     * @param type          The datatype label. Defaults to 'Time'.
+     * @param description   Optional human-readable description of the value.
      */
     Duration(Object value, String unit='ms', String type='Duration', String description = null) {
         super(value, '', unit, type, description)
@@ -15,12 +17,13 @@ class Duration extends Quantity {
     }
 
     /**
-     * Creator of a Time quantity, combining the tracking and reporting of a duration, associated with a unit.
+     * Creates a {@link Metric} or a {@link Duration}, if the value is numerical.
      *
      * @param value         Numerical value, saved in the quantity
-     * @param unit          Unit of the quantity
-     * @param type          Type of he value
-     * @param description   A human-readable description of the value
+     * @param unit          The time unit (e.g., 'ms', 's', 'min', 'h'). Defaults to 'ms'.
+     * @param type          The type label for the metric. Defaults to 'Duration'.
+     * @param description   Optional human-readable description of the metric.
+     * @return             A Duration or Metric object depending on the input value.
      */
     static Metric of(Object value, String unit='ms', String type='Duration', String description = null) {
         if (value instanceof Number) {
@@ -101,7 +104,7 @@ class Duration extends Quantity {
 
                 timeString += "${currentTime.getReadable()} "
             } else {
-                currentTime.floor()     // Keep only round numbers
+                currentTime.round(0, RoundingMode.FLOOR)     // Keep only round numbers
 
                 // Add to string and remove added value, if the threshold is reached
                 if ( (threshold == null || currentTime.value > threshold) ) {

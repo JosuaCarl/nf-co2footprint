@@ -1,36 +1,36 @@
 package nextflow.co2footprint.Metrics
 
+import java.math.RoundingMode
+
 class Percentage extends Quantity {
     /**
-     * Creator of a Quantity, combining the tracking and reporting of a number, associated with a unit.
+     * Creator of Percentage, a Quantity which represents a percentage.
      *
-     * @param value         Numerical value, saved in the quantity
-     * @param scale         Scale of the Quantity, defaults to ''
-     * @param unit          Unit of the quantity
-     * @param type          Type of he value
-     * @param description   A human-readable description of the value
+     * @param value         Numerical value.
+     * @param unit          Unit of the value.
+     * @param type          The datatype label. Defaults to 'Percentage'.
+     * @param description   A human-readable description of the value.
      */
-    Percentage(Object value, String scale='%', String unit='', String type='Percentage', String description = null) {
-        super(value, scale, unit, type, description)
+    Percentage(Object value, String unit='', String type='Percentage', String description = null) {
+        super(value, '%', unit, type, description)
         scalingFactor = 1024
     }
 
     /**
-     * Creates a {@link Metric} or a {@link Quantity} if the value is numerical.
+     * Creates a {@link Metric} or a {@link Percentage}, if the value is numerical.
      *
-     * @param value         Numerical value, saved in the quantity
-     * @param scale         Scale of the Quantity, defaults to ''
-     * @param unit          Unit of the quantity
-     * @param type          Type of he value
-     * @param description   A human-readable description of the value
-     * @return
+     * @param value         The raw value
+     * @param unit          Unit of the quantity.
+     * @param type          The type label for the metric.
+     * @param description   A human-readable description of the value.
+     * @return              A Percentage or Metric object depending on the type of `value`.
      */
-    static Metric of(Object value, String scale='%', String unit='', String type='Percentage', String description = null) {
+    static Metric of(Object value, String unit='', String type='Percentage', String description = null) {
         if (value instanceof Number) {
-            return new Percentage(value, scale, unit, type, description)
+            return new Percentage(value, unit, type, description)
         }
         else {
-            return new Metric(value, type, "${scale}${unit}", description)
+            return new Metric(value, type, "%${unit}", description)
         }
     }
 
@@ -48,11 +48,10 @@ class Percentage extends Quantity {
      * {@link #scale}s the quantity to a readable format, which is subsequently rounded and combined to a String.
      * For example, 1200 with unit 'Wh' becomes '1.2 kWh'.
      *
-     * @param targetScale Target scale to convert to, default of null (optional)
      * @param precision Decimal places to round to, default of 2
      * @return Scaled value as a formatted String with appropriate scale and rounding
      */
-    String toReadable(String targetScale=null, Integer precision=2) {
+    String toReadable(Integer precision=2) {
         return this.round(precision).getReadable()
     }
 }

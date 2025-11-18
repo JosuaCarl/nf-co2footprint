@@ -88,7 +88,7 @@ class CO2FootprintObserver implements TraceObserver {
         this.version = version
         this.config = config
 
-        // Create a CORecordTree root node for the run, tagged with 'workflow' level,
+        // Create a CO2RecordTree root node for the run, tagged with 'workflow' level,
         // to collect and organize execution metrics hierarchically.
         this.workflowStats = new CO2RecordTree(session.runName, [level: 'workflow'])
 
@@ -203,6 +203,7 @@ class CO2FootprintObserver implements TraceObserver {
         // Close all files (writes remaining tasks in the trace file)
         traceFile.close(runningTasks)
 
+        // Finalize and aggregate all workflow statistics
         workflowStats.summarize()
         workflowStats.collectAdditionalMetrics()
 
@@ -231,7 +232,7 @@ class CO2FootprintObserver implements TraceObserver {
 
         log.info(
             "🌱 The workflow run used ${workflowStats.co2Record.toReadable('energy')} of electricity, " +
-            "resulting in the release of ${workflowStats.co2Record.toReadable('co2e')} of CO₂ equivalents into the athmosphere."
+            "resulting in the release of ${workflowStats.co2Record.toReadable('co2e')} of CO₂ equivalents into the atmosphere."
         )
     }
 

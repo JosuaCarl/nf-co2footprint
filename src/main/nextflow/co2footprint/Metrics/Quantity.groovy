@@ -17,11 +17,11 @@ class Quantity extends Metric<BigDecimal> {
     /**
      * Creator of a Quantity, combining the tracking and reporting of a number, associated with a unit.
      *
-     * @param value         Numerical value, saved in the quantity
-     * @param scale         Scale of the Quantity, defaults to ''
-     * @param unit          Unit of the metric
-     * @param type          Type of he value
-     * @param description   A human-readable description of the value
+     * @param value         The numeric value.
+     * @param scale         Scale of the value, defaults to ''.
+     * @param unit          Unit of the value.
+     * @param type          The datatype label.
+     * @param description   A human-readable description of the value.
      */
     Quantity(Object value, String scale='', String unit='', String type='Number', String description = null) {
         super(value as BigDecimal, type, unit, description)
@@ -32,12 +32,12 @@ class Quantity extends Metric<BigDecimal> {
     /**
      * Creates a {@link Metric} or a {@link Quantity} if the value is numerical.
      *
-     * @param value         Numerical value, saved in the quantity
-     * @param scale         Scale of the Quantity, defaults to ''
-     * @param unit          Unit of the quantity
-     * @param type          Type of he value, defaults to 'Number'
-     * @param description   A human-readable description of the value
-     * @return
+     * @param value         The raw value.
+     * @param scale         Scale of the value, defaults to ''.
+     * @param unit          Unit of the value.
+     * @param type          The datatype label. Defaults to 'Number'.
+     * @param description   A human-readable description of the value.
+     * @return              A Quantity or Metric object depending on the input value.
      */
     static Metric of(Object value, String scale='', String unit='', String type='Number', String description = null) {
         if (value instanceof Number) {
@@ -69,7 +69,7 @@ class Quantity extends Metric<BigDecimal> {
      */
     Quantity floor(Integer precision=0) {
         if (precision != null) {
-            value = value.setScale(precision, RoundingMode.FLOOR)
+            value = value.setScale(precision, )
         }
         return this
     }

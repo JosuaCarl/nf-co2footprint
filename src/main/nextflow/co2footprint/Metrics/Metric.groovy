@@ -47,12 +47,30 @@ class Metric<T> {
         return idx
     }
 
+    /**
+     * A blank method for children of this class which handles scaling of numerical values.
+     * The standard-method does nothing but return the class.
+     *
+     * @param target Target scale (not used for a Metric)
+     * @return The unchanged Metric
+     */
     Metric scale(String target=null) { return this }
 
+    /**
+    * Returns the raw value as a human-readable string.
+    *
+    * @return  The value converted to a String.
+    */
     String getReadable() {
         return value as String
     }
 
+    /**
+     * Converts this Metric into a map representation, including all
+     * available metadata fields.
+     *
+     * @return  A map representing the Metric and its metadata.
+     */
     Map<String, Object> toMap() {
         Map<String, Object> map = [value: value, type: type]
         if (unit) { map.put('unit', unit) }

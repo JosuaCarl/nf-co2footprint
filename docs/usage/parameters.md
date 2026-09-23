@@ -152,9 +152,11 @@ The following parameters are currently available:
     !!! warning "Experimental feature"
         The `cpuPowerModel` parameter is experimental and may change in future releases.
 
-    A customizable energy function that take the following variables: coreUsage, runtime_h, numberOfCores, powerdrawPerCore. The result should a energy consumption in Wh.
+    A mathematical expression in [infix format](https://en.wikipedia.org/wiki/Infix_notation) that takes the following variables:
+    `coreUsage`[0,1], `runtime_h` [hours], `numberOfCores` [1,), `powerdrawPerCore` [W].
+    The result should be an energy consumption in Wh.
 
-    If specified, this overrides the previous memory energy function `runtime_h * numberOfCores * powerdrawPerCore * coreUsage`.
+    If specified, this overwrites the previous memory energy function `runtime_h * numberOfCores * powerdrawPerCore * coreUsage`.
  
     **Example**: `'runtime_h * numberOfCores * (0.5 * coreUsage + 10.0)'`
     
@@ -168,8 +170,10 @@ The following parameters are currently available:
     !!! warning "Experimental feature"
         The `memoryPowerModel` parameter is experimental and may change in future releases.
 
-    A customizable energy function that can take the following variables: memory. The result should a energy consumption in Wh.
+    A mathematical expression in [infix format](https://en.wikipedia.org/wiki/Infix_notation) that takes the following variables:
+    `memory`[GB], `runtime_h` [hours].
+    The result should be an energy consumption in Wh.
     
-    If specified, this overrides the previous memory energy function `memory * 0.3725`, with memory given in Gigabytes.
+    If specified, this overwrites the previous memory energy function `memory * 0.3725`.
     
     **Example**: `'memory * 0.5'`

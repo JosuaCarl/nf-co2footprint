@@ -5,12 +5,14 @@ import nextflow.co2footprint.DataContainers.TDPDataMatrix
 import nextflow.co2footprint.Logging.Markers
 import nextflow.co2footprint.Metrics.Bytes
 import nextflow.co2footprint.Metrics.Duration
+import nextflow.co2footprint.Parsers.BigDecimalEvaluator
 import nextflow.co2footprint.Records.CO2EquivalencesRecord
 import nextflow.co2footprint.Records.CO2Record
 import nextflow.co2footprint.Records.CiRecordCollector
 import nextflow.exception.MissingValueException
 import nextflow.processor.TaskId
 import nextflow.trace.TraceRecord
+import com.fathzer.soft.javaluator.StaticVariableSet
 
 /**
  * Class for computation of energy usage, CO₂ emission, and equivalence metrics.
@@ -22,6 +24,10 @@ class CO2FootprintCalculator {
     private final TDPDataMatrix tdpDataMatrix
     // Holds configuration parameters for CO₂ calculations
     private final CO2FootprintConfig config
+    
+    // Classes for evaluating math expressions
+    private final BigDecimalEvaluator evaluator = new BigDecimalEvaluator()
+    private final StaticVariableSet<Object> variables = new StaticVariableSet<>()
 
     /**
      * Constructor for CO2FootprintCalculator.
@@ -270,11 +276,13 @@ class CO2FootprintCalculator {
     /**
      * Evaluate a string to Groovy code and execute it with the given context parameters.
      * 
-     * @param functionString A function in String form
+     * @param expression A mathematical expression in String form
      * @param context parameters that are applied to the given function
      * @return The result as a BigDecimal number
      */
-    private static BigDecimal evaluateStringCalculation(String functionString, Map<String, Object> context) {
-        return new GroovyShell(new Binding(context)).evaluate(functionString) as BigDecimal
+    private BigDecimal evaluateStringCalculation(String expression, Map<String, Object> context) {
+        context.each { String variable, Object value -> variables.set(variable, value) }
+        BigDecimal result = evaluator.evaluate(expression, variables)
+        return result
     }
 }
